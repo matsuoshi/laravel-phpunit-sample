@@ -2,47 +2,45 @@
 
 namespace Tests\Unit;
 
-use App\Sample;
+use App\User;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class SampleTest extends TestCase
+class UserTest extends TestCase
 {
+    use RefreshDatabase;
 
     /**
-     * @group model
+     * DBに10件保存して件数を確認するテスト
+     * @group db
      */
-    public function testGetTaxIncludedPrice()
+    public function test10Users()
     {
-        $sample = new Sample();
+        $user = new User();
 
-        $result = $sample->getTaxIncludedPrice(100);
+        factory(User::class, 10)->create();
 
-        $this->assertEquals(108, $result);
+        $count = $user->getCount();
+        $this->assertEquals(10, $count);
     }
 
     /**
-     * @group model
+     * DBに適当に保存して、対象レコードだけを取り出すテスト
+     * @group db
      */
-    public function testGetTaxExcludedPrice()
+    public function testUsersWithoutPassword()
     {
-        $sample = new Sample();
+        $user = new User();
 
-        $result = $sample->getTaxExcludedPrice(540);
+        $example_address = 'foobar@example.jp';
 
-        $this->assertEquals(500, $result);
-    }
+        factory(User::class, 10)->create();
+        factory(User::class)->create([
+            'email' => $example_address,
+        ]);
+        factory(User::class, 10)->create();
 
-    /**
-     * @group all
-     */
-    public function testTax()
-    {
-        $sample = new Sample();
-
-        $result = $sample->getTaxIncludedPrice(100);
-        $result = $sample->getTaxExcludedPrice($result);
-
-        $this->assertEquals(100, $result);
+        $result = $user->getByEmail($example_address);
+        $this->assertEquals($example_address, $result->email);
     }
 }

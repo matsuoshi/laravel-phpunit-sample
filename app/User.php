@@ -26,4 +26,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function getCount()
+    {
+        return User::count();
+    }
+
+    public function getByEmail($email)
+    {
+        return User::where(['email' => $email])->first();
+    }
 }
